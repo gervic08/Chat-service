@@ -4,12 +4,12 @@ module Api
   module V1
     class MessagesController < ApplicationController
       before_action :authorize_request
-      before_action :set_chat
+      before_action :set_conversation
       after_action { pagy_headers_merge(@pagy) if @pagy }
 
       def index
         @pagy, @messages = pagy(
-          @chat.messages.all,
+          @conversation.messages.all,
           items: params[:items] || 10,
           page: params[:page] || 1
         )
@@ -19,8 +19,8 @@ module Api
 
       private
 
-      def set_chat
-        @chat = Chat.find(params[:chat_id])
+      def set_conversation
+        @conversation = Conversation.find(params[:id])
       end
     end
   end

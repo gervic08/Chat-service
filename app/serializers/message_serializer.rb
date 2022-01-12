@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+<<<<<<< HEAD
 # == Schema Information
 #
 # Table name: messages
@@ -19,6 +20,8 @@
 #
 #  fk_rails_...  (user_id => users.id)
 #
+=======
+>>>>>>> [wip]feat(messages): add messages list
 class MessageSerializer
   include JSONAPI::Serializer
   attributes :detail
