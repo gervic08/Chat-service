@@ -7,7 +7,7 @@ RSpec.describe 'api/v1/messages', type: :request do
   let(:user2) { create(:user, name: 'test2', email: 'test2@example.com', password: '12345') }
   let(:conversation) { create(:conversation) }
   let(:message1) { create(:message) }
-  let(:valid_token) { { 'Authorization' => AuthTokenService.call(user_id).to_s } }
+  let(:valid_token) { { 'Authorization' => AuthTokenService.call(user.id).to_s } }
 
   context 'with valid authorization token' do
     it 'renders a successful response' do
