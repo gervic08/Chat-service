@@ -33,10 +33,11 @@ module Api
           @conversation.users << @current_user
           @message = @conversation.messages.build(message_params)
           @message.user = @current_user
-          @message.detail = settings if @current_user.settings.include? 'true'
+
+          process_message_detail
 
           if @message.save
-            render json: MessageSerializer.new(@message), status: :created
+            render json: MessageSerializer.new(@message).serializable_hash.merge(@sentiment), status: :created
           else
             render json: @message.errors, status: :unprocessable_entity
           end
@@ -68,8 +69,14 @@ module Api
         end
       end
 
-      def message_params
-        params.require(:message).permit(:detail, :modified)
+      def bad_word_detector
+        @bad_word_detector ||= BadWordDetector.new
+      end
+
+      def process_message_detail
+        @sentiment = SentimentApi.get_from(@message.detail)
+        bad_word_detector.detector(@message.detail)
+        @message.detail = settings if @current_user.settings.include? 'true'
       end
     end
   end
