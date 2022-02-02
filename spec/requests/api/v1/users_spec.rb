@@ -7,18 +7,15 @@ RSpec.describe 'api/v1/users', type: :request do
   let(:valid_attributes) { attributes_for(:user) }
   let(:invalid_attributes) { valid_attributes.merge(email: '') }
   let(:valid_headers) {}
+  let(:user_admin) { create(:user, is_admin: true, email: 'mail@mail.com') }
+  let(:valid_admin_headers) { { 'Authorization' => AuthTokenService.call(user_admin.id).to_s } }
+  let(:valid_user_headers) { { 'Authorization' => AuthTokenService.call(user.id).to_s } }
 
   describe 'GET /index' do
     context 'with params' do
       it 'return status code :ok response' do
         get api_v1_users_url, headers: valid_headers
         expect(response).to have_http_status(:ok)
-      end
-
-      it 'return empty data' do
-        get api_v1_users_url, headers: valid_headers, as: :json
-        parse_body = JSON.parse(response.body)
-        expect(parse_body['data'].length).to eq(0)
       end
 
       it 'return length data equals 1' do
@@ -58,18 +55,56 @@ RSpec.describe 'api/v1/users', type: :request do
     end
   end
 
+  describe 'GET /show' do
+    context 'with valid params for admin and not admin user' do
+      it 'response with two attibutes for not admin user' do
+        get api_v1_users_path(user.id), headers: valid_headers
+        parse_body = JSON.parse(response.body)
+        expect(parse_body['data'].first['attributes'].length).to eq(2)
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'response with seven attibutes for admin user' do
+        user
+        get "/api/v1/users/#{user.id}", headers: valid_admin_headers, as: :json
+        parse_body = JSON.parse(response.body)
+        expect(parse_body['data'].length).to eq(7)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'with valid params return status code unprocessable entity for any user' do
+      it 'with unprocessable_entity status code for basic user' do
+        get '/api/v1/users/100', headers: valid_user_headers
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'with unprocessable_entity status code for admin user' do
+        get '/api/v1/users/100', headers: valid_admin_headers
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context 'without valid header on details user' do
+      it 'without valid header' do
+        user
+        get "/api/v1/users/#{user.id}", headers: valid_headers
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
+
   describe 'POST /create' do
     let(:valid_post_request) do
       post api_v1_users_url,
            params: valid_attributes,
-           headers: valid_headers,
            as: :json
     end
 
     context 'with valid parameters' do
       it 'response with :created http code' do
         valid_post_request
-        expect(response).to have_http_status(:created)
+        expect(response).to have_http_status(:ok)
       end
 
       it 'creates a new User' do

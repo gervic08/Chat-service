@@ -2,10 +2,11 @@
 
 require 'rails_helper'
 RSpec.describe 'api/v1/messages', type: :request do
-  let(:user1) { create(:user) }
-  let(:conversation1) { create(:conversation, user1_id: user1.id) }
+  let(:user1) { create(:user, email: 'test32@g.com') }
+  let(:conversation1) { create(:conversation) }
+  let(:message1) { create(:message) }
+  let(:conversation_user1) { create(:conversation_user, conversation: conversation1, user: user1) }
   let(:valid_attributes) { attributes_for(:message) }
-  let(:invalid_attributes) { attributes_for(:message, email: '') }
   let(:valid_token) { { 'Authorization' => AuthTokenService.call(user1.id).to_s } }
 
   context 'with valid authorization token' do
@@ -21,6 +22,12 @@ RSpec.describe 'api/v1/messages', type: :request do
            params: invalid_attributes,
            headers: valid_token, as: :json
       expect(response).to have_http_status(:unprocessable_entity)
+    end
+      
+    it 'shows the message´s list and renders a successful response' do
+      conversation_user1
+      get api_v1_conversation_messages_url(conversation1.id), headers: valid_token, as: :json
+      expect(response).to have_http_status(:ok)
     end
   end
 

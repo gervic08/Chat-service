@@ -1,0 +1,8 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = true
+[remote "origin"]
+	url = https://github.com/alkemyTech/Custom-chat-112
+	fetch = +refs/*:refs/*
+	mirror = true

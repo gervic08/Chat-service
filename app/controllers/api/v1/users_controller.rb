@@ -3,7 +3,8 @@
 module Api
   module V1
     class UsersController < ApplicationController
-      before_action :set_user, only: %i[update destroy]
+      before_action :authorize_request, except: :create
+      before_action :set_user, only: %i[show update destroy]
 
       def index
         @users = User.all
@@ -12,12 +13,25 @@ module Api
 
       def create
         @user = User.new(user_params)
-        @user.is_admin = false
 
         if @user.save
-          render json: @user, status: :created
+          token = AuthTokenService.call(@user.id)
+          render json: {
+            'token' => token,
+            'user' => UserSerializer.new(@user).serializable_hash
+          }, status: :created
         else
           render json: @user.errors, status: :unprocessable_entity
+        end
+      end
+
+      def show
+        if @current_user.is_admin
+          render json: {
+            'data': @user
+          }
+        else
+          render json: UserSerializer.new(@user).serializable_hash.to_json
         end
       end
 
@@ -49,7 +63,7 @@ module Api
       end
 
       def user_params
-        params.permit(:name, :password, :email, :id)
+        params.require(:user).permit(:name, :password, :email, :id, :settings)
       end
     end
   end
