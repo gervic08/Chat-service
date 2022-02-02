@@ -14,12 +14,16 @@ RSpec.describe 'api/v1/messages', type: :request do
       post api_v1_conversation_messages_url(conversation1.id),
            params: valid_attributes,
            headers: valid_token, as: :json
-      expect(response).to have_http_status(:created)
-      expect{
-        post :create, { post: message1 }
-      }.to change(Message, :count).by(1)
+      expect(response).to have_http_status(:ok)
     end
 
+    it 'returns an error for missing param' do
+      post api_v1_conversation_messages_url(conversation1.id),
+           params: invalid_attributes,
+           headers: valid_token, as: :json
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+      
     it 'shows the message´s list and renders a successful response' do
       conversation_user1
       get api_v1_conversation_messages_url(conversation1.id), headers: valid_token, as: :json

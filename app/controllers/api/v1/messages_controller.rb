@@ -48,6 +48,10 @@ module Api
 
       private
 
+      def message_params
+        params.require(:message).permit(:detail, :modified)
+      end
+
       def set_conversation
         @conversation = @current_user.conversations.find_by(id: params[:conversation_id])
       end
