@@ -23,5 +23,8 @@ FactoryBot.define do
     email { 'example@example.com' }
     password { 'example' }
     is_admin { false }
+
+    string = '{ upcase: false, downcase: true, normalize: false }'
+    settings { Hash[string.split('\n').map { |word| word = word.split(':'); [word[0].to_sym, word[1]] }] }
   end
 end

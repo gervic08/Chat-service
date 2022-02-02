@@ -26,8 +26,9 @@
 #
 FactoryBot.define do
   factory :message do
-    user_id { 1 }
     detail { 'Hello, how are you?' }
-    modfied { false }
+    modified { false }
+    association :conversation, factory: :conversation
+    association :user, factory: :user
   end
 end
