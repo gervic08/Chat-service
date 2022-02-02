@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'active_support'
+require 'active_support/core_ext'
+require 'rest-client'
+
 class SentimentApi
   API_URL = 'https://sentim-api.herokuapp.com/api/v1/'
   HEADERS = {
